@@ -42,23 +42,52 @@ export class Database {
 
    update(table, id, data){
 
+    if (!this.#database[table]) {
+      throw new Error(`Table "${table}" does not exist.`);
+    }
+
     const index = this.#database[table].findIndex(ticket => ticket.id === id)
 
     if(index === -1){
-      return null
+      throw new Error(`ticket "${table}" does not exist.`);
+    }
+
+    const currentTask = this.#database[table][index];
+    const updatedTask = {
+      ...currentTask,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.#database[table][index] = updatedTask;
+
+    this.#persist()
+
+    return updatedTask;
+   }
+
+   patch(table, id){
+
+    if(!this.#database[table]){
+      throw new Error(`Table "${table}" does not exist.`);
+    }
+
+    const findTask = this.#database[table].find(ticket => ticket.id === id)
+
+    console.log(findTask)
+
+    if(!findTask){
+      throw new Error(`ticket "${table}" does not exist.`);
     }
 
     const updatedTask = {
-      id,
-      title: data?.title ? data?.title : this.#database[table][index].title,
-      description: data?.description ? data?.description : this.#database[table][index].description,
-      createdAt:this.#database[table][index].createdAt,
-      completed_at: this.#database[table][index].completed_at,
-      updatedAt: new Date().toISOString()
-    }
+      ...findTask,
+      updatedAt: new Date().toISOString(),
+      completed_at: new Date().toISOString(),
+    };
 
-    const task = this.#database[table][index] = {...updatedTask}
+    this.#persist();
 
-    return task
+    return updatedTask;
    }
 }

@@ -54,7 +54,24 @@ export const routes = [
 
       const updatedTicket = database.update("tickets", id, data)
 
-      return res.end(JSON.stringify(updatedTicket))
+      if (!updatedTicket) {
+        return res.writeHead(404).end(JSON.stringify({
+          message: "Task not found",
+        }));
+      }
+
+      return res.writeHead(204).end()
+    }
+  },
+  {
+    method: "PATCH",
+    path: buildRoutePath("/tasks/:id/complete"),
+    handler: (req, res) => {
+      const { id} = req.params
+
+      const patchTask = database.patch("tickets", id)
+
+      return res.writeHead(200).end(JSON.stringify(patchTask));
     }
   }
 ]
