@@ -29,6 +29,8 @@ export const routes = [
     handler: (req, res) => {
       const data = req.body
 
+      console.log(data)
+
       const ticket = {
         id: randomUUID(),
         title: data.title,
@@ -39,6 +41,7 @@ export const routes = [
       }
 
       const newTickets = database.insert("tickets", ticket)
+
 
       return res.end(JSON.stringify(newTickets))
     }
