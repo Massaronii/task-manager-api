@@ -1,7 +1,10 @@
 import http from "node:http"
+import { json } from "./middlewares/json"
 
-const server = http.createServer((req, res) => {
-  return res.end("hello word")
+const server = http.createServer(async(req, res) => {
+  const {method, url } = req
+
+  await json(req, res)
 })
 
 server.listen(3333)
