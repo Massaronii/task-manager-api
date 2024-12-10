@@ -1,6 +1,6 @@
 import fs from "node:fs/promises"
 
-const databasePath = new URL("../db;.json", import.meta.url)
+const databasePath = new URL("../db.json", import.meta.url)
 
 export class Database {
   #database = {}
@@ -20,51 +20,45 @@ export class Database {
   }
 
    get(table, search){
-    let data = this.#database[table] ?? []
+    let data = this.#database[table]
+    console.log(data)
 
-    if(search){
-      const getData = data.filter(row => {
-        return Object.entries(search).some(([key, value]) => {
-          return row[key].toLowerCase().includes(value.toLowerCase())
-        })
-      })
-    }
     return data
-  }
+   }
 
-  insert(table , data){
-
-    if(Array.isArray(this.#database[table])){
-      this.#database[table].push(data)
-    }else {
-      this.#database[table] = data
+   insert(table, data){
+    
+    if(!this.#database[table]){
+      this.#database[table] = [data] 
+      this.#persist()
+      return data
     }
 
+    this.#database[table].push(data)
     this.#persist()
 
-    return data
-  }
+    return 
+   }
 
-  delete(table, id){
-    const searchItem = this.#database[table].filterIndex(item => id ===item.id)
+   update(table, id, data){
 
-    if(searchItem > -1){
-      searchItem.slice(searchItem, 1)
-      this.#persist()
-      return true
-    }
-    return false
-  }
+    const index = this.#database[table].findIndex(ticket => ticket.id === id)
 
-  update(table, id, data){
-    const searchItem = this.#database[table].filterIndex(item => item.id === id)
-
-    if(searchItem > -1){
-      this.#database[table][searchItem] = {id, ...data}
-      this.#persist()
-      return true
+    if(index === -1){
+      return null
     }
 
-    return false
-  }
+    const updatedTask = {
+      id,
+      title: data?.title ? data?.title : this.#database[table][index].title,
+      description: data?.description ? data?.description : this.#database[table][index].description,
+      createdAt:this.#database[table][index].createdAt,
+      completed_at: this.#database[table][index].completed_at,
+      updatedAt: new Date().toISOString()
+    }
+
+    const task = this.#database[table][index] = {...updatedTask}
+
+    return task
+   }
 }
