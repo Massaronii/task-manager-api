@@ -21,7 +21,18 @@ export class Database {
 
    get(table, search){
     let data = this.#database[table]
-    console.log(data)
+
+    if (search) {
+      data = data.filter(row => { 
+        return Object.entries(search).some(([key, value]) => {
+          return row[key].toLowerCase() === value.toLowerCase();
+        });
+      });
+    }
+
+  if(data.length === 0){  
+    return null
+  }
 
     return data
    }
@@ -89,5 +100,21 @@ export class Database {
     this.#persist();
 
     return updatedTask;
+   }
+
+   delete(table, id){
+
+    const findItem = this.#database[table].findIndex(ticket => ticket.id === id)
+
+    if(findItem === -1){
+      throw new Error(`ticket "${table}" does not exist.`);
+    }
+
+    const deletedItem = this.#database[table].splice(findItem, 1)
+
+    this.#persist()
+
+    return deletedItem
+
    }
 }

@@ -9,18 +9,16 @@ export const routes = [
     method: "GET",
     path: buildRoutePath("/tasks"),
     handler: (req, res) => {
-      // const {search} = req.query
-    
-      let tasks =  database.get("tickets", null)
+      const {search} = req.query
 
-      // const tickets = this.database.get("tickets", search ? {
-      //   name: search,
-      //   id: search
-      // } : null)
-      if(!tasks){
+      let tasks = database.get("tickets", search ? {
+        description: search,
+        title: search
+      } : null)
+
+      if (!tasks) {
         return res.end(JSON.stringify("Não há tarefas"))
       }
-
 
       return res.end(JSON.stringify(tasks))
     }
@@ -49,7 +47,7 @@ export const routes = [
     method: "PUT",
     path: buildRoutePath("/tasks/:id"),
     handler: (req, res) => {
-      const {id} = req.params
+      const { id } = req.params
       const data = req.body
 
       const updatedTicket = database.update("tickets", id, data)
@@ -67,11 +65,23 @@ export const routes = [
     method: "PATCH",
     path: buildRoutePath("/tasks/:id/complete"),
     handler: (req, res) => {
-      const { id} = req.params
+      const { id } = req.params
 
       const patchTask = database.patch("tickets", id)
 
       return res.writeHead(200).end(JSON.stringify(patchTask));
+    }
+  },
+  {
+    method: "DELETE",
+    path: buildRoutePath("/tasks/:id"),
+    handler: (req, res) => {
+
+      const { id } = req.params
+
+      const deletedTask = database.delete("tickets", id)
+
+      return res.writeHead(204).end()
     }
   }
 ]
